@@ -18,14 +18,16 @@ def build_url_str(st):
 #get correct elements in tree: addr, ip, update_addr
 def get_request_elements(url_request):
     with request.urlopen(url_request) as f:
+        #print(f.read())
         root = ET.fromstring(f.read().decode('utf-8'))[0]
         return [j.text for j in [i for i in root]]
 
 #if ips are not equal, update else, nothing
 def update(ip_new, ip_old, update_url):
-    print(ip_new, ip_old)
+    if ip_new == '':
+        return 'failed to retrieve ip address'
     if ip_new != ip_old:
-        req = request.urlopen(update_url + '&{}'.format(ip_new))
+        req = request.urlopen(update_url + '&address={}'.format(ip_new))
         print(req.read())
     else:
         print('nothing to do: exiting')
@@ -34,9 +36,9 @@ def update(ip_new, ip_old, update_url):
 def build_hash_string(user, passwd):
     return '{}|{}'.format(user, passwd)
 
+#main
 user_login, _password = get_user_options()
 host, old_ip, url = get_request_elements(build_url_str(build_hash_string(user_login,_password)))
-new_ip = ipgetter.myip()
-update(new_ip, old_ip, url)
+update(ipgetter.myip(), old_ip, url)
 
 
